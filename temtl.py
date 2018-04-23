@@ -1,8 +1,3 @@
-slovar = [[1,2],
-         [3,4],
-         [5,6]]
-#print(slovar[1][0])
-
 ar1 = [[80, 12, 4, 27, 8, 15],
        [20, 13, 1, 2, 16, 15],
        [60, 45, 67, 23, 1, 54],
@@ -17,13 +12,13 @@ ar2 = [[5, 6, 1, 11],
        [2,5,8]
        ]
 
-#сортировка без рекурсии
+#сортировка без рекурсии 2-х мерного массива
 def bubble_sort(input_array):
     c = 0
-    for i in range(0, len(input_array)):
-        for j in range(0, len(input_array[i])):
+    for i in range(len(input_array)):
+        for j in range(i, len(input_array[i])):
             k = j + 1
-            for k in range(0, len(input_array[i])):
+            for k in range(len(input_array[i])):
                 if input_array[i][j] < input_array[i][k]:
                     c = input_array[i][j]
                     input_array[i][j] = input_array[i][k]
