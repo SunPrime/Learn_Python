@@ -3,7 +3,7 @@ def random_list(len_list):
     from random import randint
     list_mumerals = []
     for i in range(len_list):
-        a = randint(0, 100)
+        a = randint(0, 1000)
         list_mumerals.append(a)
     return list_mumerals
 
@@ -48,7 +48,7 @@ def insertion_sort(x):
         x[j] = num
     return x
 
-abc = int(input("Введите длину строки: "))
+abc = int(input("Введите длину строки (до 100): "))
 list1 = random_list(abc)
 print(list1)
 print("Минимальное число = ", min_number(list1))

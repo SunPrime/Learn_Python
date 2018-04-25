@@ -2,7 +2,7 @@ import unittest
 
 from homework_lesson2.homework_lesson1 import *
 
-class TestCaseHomeWork(unittest.TestCase):
+class TestCaseHomeWork1(unittest.TestCase):
 
     def test_random_list(self):
         pass
@@ -13,9 +13,14 @@ class TestCaseHomeWork(unittest.TestCase):
         self.assertEqual(res, 10)
 
     def test_max_number(self):
-        a = [10, 20, 5, 1,]
+        a = [10, 20, 5, 1]
         res = max(a)
         self.assertEqual(res, 20)
+
+class TestCaseHomeWork2(unittest.TestCase):
+
+    def test_random_list(self):
+        pass
 
     def test_sort_ar(self):
         a = [8, 2, 1, 4]
@@ -28,4 +33,6 @@ class TestCaseHomeWork(unittest.TestCase):
         self.assertEqual(res, [1, 2, 3, 5])
 
 if __name__ == '__main__':
-    unittest.main()
+    import doctest
+
+    doctest.testmod()
