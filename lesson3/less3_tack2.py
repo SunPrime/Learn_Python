@@ -25,7 +25,7 @@ class Flight:
         self.staff.append(staff)
 
     def add_ticket(self, ticket):
-        if self.airplane.capasity < len(self.tickets):
+        if self.airplane.capasity > len(self.tickets):
             self.tickets.append(ticket)
         else:
             raise Exception("Capasity error")
@@ -56,3 +56,19 @@ class Fuel:
 class Ticket:
     def __init__(self, price):
         self.price = price
+
+
+ticket1 = Ticket(200)
+fuel = Fuel(10) #per 1 kg
+staff_stewardess = Staff(200)
+staff_pilot = Staff(500)
+plane_A320 = Airplane(200, fuel, 3)
+flight444 = Flight(900)
+flight444.set_airplane(plane_A320)
+flight444.add_staff(staff_stewardess)
+flight444.add_staff(staff_pilot)
+for i in range(1, plane_A320.capasity):
+    flight444.add_ticket(ticket1)
+mau = Air_company()
+mau.add_flight(flight444)
+print(mau.total_profit())
