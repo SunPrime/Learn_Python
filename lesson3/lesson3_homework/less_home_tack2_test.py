@@ -5,7 +5,7 @@ from lesson3.lesson3_homework.less3_home_tack2 import Subject, Lecturer, Student
 
 class MyTestCase(unittest.TestCase):
     def test_Register(self):
-        math = Subject("Матанализ")
+        math = Subject("Теория вероятности")
         lect1 = Lecturer("Клевер О.И.")
         stud1 = Student("Иванов")
         stud2 = Student("Петров")
@@ -16,7 +16,6 @@ class MyTestCase(unittest.TestCase):
         register1.add_grade(stud2, 4)
         register1.add_grade(stud3, 3)
         register1.add_grade(stud4, 5)
-        register1.register_print_totals()
 
 if __name__ == '__main__':
     import doctest

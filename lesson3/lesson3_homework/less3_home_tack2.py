@@ -21,13 +21,12 @@ class Register():
         else:
             self.total_2 += 1
 
-    def register_print_totals(self):
-        res = "Предмет: %s\nПреподаватель: %s\n" \
+    def __str__(self):
+        return "Предмет: %s\nПреподаватель: %s\n" \
               "%d студ. - получили оценку 5\n" \
               "%d студ. - получили оценку 4\n" \
               "%d студ. - получили оценку 3\n" \
               "%d студ. - получили оценку 2\n" % (self.subj.subject, self.lect.lecturer, self.total_5, self.total_4, self.total_3, self.total_2)
-        return res
 
 #Преподаватель
 class Lecturer():
@@ -45,7 +44,7 @@ class Subject():
         self.subject = subject
 
 
-math = Subject("Матанализ")
+math = Subject("Теория вероятности")
 lect1 = Lecturer("Клевер О.И.")
 stud1 = Student("Иванов")
 stud2 = Student("Петров")
@@ -56,5 +55,4 @@ register1.add_grade(stud1, 5)
 register1.add_grade(stud2, 4)
 register1.add_grade(stud3, 3)
 register1.add_grade(stud4, 5)
-res = register1.register_print_totals()
-print(res)
+print(register1)
