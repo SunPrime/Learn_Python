@@ -5,16 +5,14 @@ class Game:
 
     def start_game(self):
         while True:
-            if not self.player1.is_free_cell():
-                return 'draw'
             self.player1.step()
             if self.player1.is_winner():
-                return 'player1 is winner'
-            if not self.player2.is_free_cell():
-                return 'draw'
+                print('player1 is winner')
+                return
             self.player2.step()
             if self.player2.is_winner():
-                return 'player2 is winner'
+                print('player2 is winner')
+                return
 
 class Player:
     def __init__(self, field, mark):
@@ -53,6 +51,7 @@ class Human(Player):
                     raise ValueError
             except ValueError:
                 print("Введите 0, 1 или 2")
+        self.field.check_cell(x, y)
         self.field.change_status(x, y, self.mark)
         self.field.show()
 
@@ -71,49 +70,57 @@ class Field:
         self.set_field()
 
     def set_field(self):
-        cell = Cell()
-        self.field = [[cell.status for j in range(3)] for i in range(3)]
+        self.field = [[Cell('_') for j in range(3)] for i in range(3)]
 
     def is_free_cell(self):
         for i in range(3):
             for j in range(3):
-                if self.field[i][j] == 'p':
+                if self.field[i][j].status == '_':
                     return True
 
     def is_line(self, mark):
         for i in range(3):
             for j in range(3):
-                if (self.field[i][0] == mark and self.field[i][1] == mark and self.field[i][2] == mark):
+                if (self.field[i][0].status == mark and self.field[i][1].status == mark and self.field[i][2].status == mark):
                     return True
-                if (self.field[0][j] == mark and self.field[1][j] == mark and self.field[2][j] == mark):
+                if (self.field[0][j].status == mark and self.field[1][j].status == mark and self.field[2][j].status == mark):
                      return True
-            if (self.field[0][0] == mark and self.field[1][1] == mark and self.field[2][2] == mark):
-                return True
-            if (self.field[0][2] == mark and self.field[1][1] == mark and self.field[2][0] == mark):
-                return True
+        if (self.field[0][0].status == mark and self.field[1][1].status == mark and self.field[2][2].status == mark):
+            return True
+        if (self.field[0][2].status == mark and self.field[1][1].status == mark and self.field[2][0].status == mark):
+            return True
+
+    def check_cell(self, x, y):
+        if self.field[x][y] != '_':
+            return True
+        else:
+            return print('Выберите другую клетку')
 
     def change_status(self, x, y, mark):
-        self.field[x][y] = mark
+        self.field[x][y].status = mark
 
     def show(self):
         for i in range(3):
-            print(self.field[i])
+            line = ''
+            for j in range(3):
+                line += self.field[i][j].status + '|'
+            print(line)
         print()
 
     def get_free_cell(self):
         for i in range(3):
             for j in range(3):
-                if self.field[i][j] == 'p':
+                if self.field[i][j].status == '_':
                     return i, j
 
 
 class Cell:
-    def __init__(self):
-        self.status = 'p'
+    def __init__(self, status):
+        self.status = status
 
 
 fieldA = Field()
 person1 = Human(fieldA, 'X')
 person2 = Computer(fieldA, 'O')
 game1 = Game(person1, person2)
-print(game1.start_game())
+game1.start_game()
