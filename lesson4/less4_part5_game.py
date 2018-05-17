@@ -35,23 +35,15 @@ class Human(Player):
     def step(self):
         while True:
             try:
-                x = int(input("Введите х: "))
+                x, y = map(int, input("Введите х, y: ").split(' '))
                 if 0 <= x < 3:
-                    break
-                else:
-                    raise ValueError
+                    if 0 <= y < 3:
+                        if self.field.check_cell(x, y):
+                            break
+                        else:
+                            raise ValueError
             except ValueError:
                 print("Введите 0, 1 или 2")
-        while True:
-            try:
-                y = int(input("Введите y: "))
-                if 0 <= y < 3:
-                    break
-                else:
-                    raise ValueError
-            except ValueError:
-                print("Введите 0, 1 или 2")
-        self.field.check_cell(x, y)
         self.field.change_status(x, y, self.mark)
         self.field.show()
 
@@ -91,13 +83,15 @@ class Field:
             return True
 
     def check_cell(self, x, y):
-        if self.field[x][y] != '_':
+        if self.field[x][y].status == '_':
             return True
         else:
-            return print('Выберите другую клетку')
+            print('Выберите другую клетку')
+            return False
 
     def change_status(self, x, y, mark):
-        self.field[x][y].status = mark
+        if self.check_cell(x, y):
+            self.field[x][y].status = mark
 
     def show(self):
         for i in range(3):
