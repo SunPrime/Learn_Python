@@ -35,7 +35,7 @@ class Human(Player):
     def step(self):
         while True:
             try:
-                x, y = map(int, input("Введите х, y: ").split(' '))
+                x, y = map(int, input("Введите х, y: ").split(','))
                 if 0 <= x < 3:
                     if 0 <= y < 3:
                         if self.field.check_cell(x, y):
