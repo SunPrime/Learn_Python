@@ -11,12 +11,12 @@ class Game:
     def start_game(self):
         while True:
             try:
-                self.step_player(self.player1)
-                self.step_player(self.player2)
+                self.step_player(self.player1, self.player2)
+                self.step_player(self.player2, self.player1)
             except StopGame:
                 break
 
-    def step_player(self, player):
+    def step_player(self, player, enemy):
             if not player.is_free_cell():
                 self.user_interface.show_draw()
                 raise StopGame
@@ -26,7 +26,7 @@ class Game:
                     x, y = player.generation_step()
                 except NotImplementedError:
                     x, y = self.user_interface.get_coords()
-                success = player.step(x, y)
+                success = player.step(enemy.field_player, x, y)
             self.user_interface.show_field(player.show_field())
             if player.is_winner():
                 self.user_interface.show_winner(player.name)
@@ -64,10 +64,11 @@ class Player:
     def generation_step(self):
         raise NotImplementedError
 
-    def step(self, x, y):
-        if not (0 <= x < 10 and 0 <= y < 10 and self.field_enemy.check_cell(x, y)):
+    def step(self, field_enemy, x, y):
+        if not (0 <= x < 10 and 0 <= y < 10 and field_enemy.check_cell(x, y)):
             return False
-        self.field_enemy.change_status(x, y)
+        status = field_enemy.change_status(x, y)
+        self.field_enemy.field[x][y].status = status
         return True
 
     def is_winner(self):
@@ -110,10 +111,11 @@ class Field:
 
     def change_status(self, x, y):
         if self.check_cell(x, y):
+            status = '+'
             if self.field[x][y].status == 'O':
-                self.field[x][y].status = 'X'
-            else:
-                self.field[x][y].status = '+'
+                status = 'X'
+            self.field[x][y].status = status
+            return status
 
     def show(self):
         field = []
