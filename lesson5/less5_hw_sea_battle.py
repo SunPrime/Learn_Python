@@ -26,7 +26,7 @@ class Game:
                     x, y = player.generation_step()
                 except NotImplementedError:
                     x, y = self.user_interface.get_coords()
-                success = player.step(enemy.field_player, x, y)
+                success = player.step(enemy.field_of_player, x, y)
             self.user_interface.show_field(player.show_field())
             if player.is_winner():
                 self.user_interface.show_winner(player.name)
@@ -50,16 +50,16 @@ class User_interface:
 
 class Player:
     def __init__(self, name):
-        self.field_player = Field()
+        self.field_of_player = Field()
         self.set_ships()
-        self.field_enemy = Field()
+        self.field_of_enemy = Field()
         self.name = name
 
     def set_ships(self):
-        self.field_player.set_ships4player()
+        self.field_of_player.set_ships4player()
 
     def is_free_cell(self):
-        return self.field_enemy.is_free_cell()
+        return self.field_of_enemy.is_free_cell()
 
     def generation_step(self):
         raise NotImplementedError
@@ -68,24 +68,24 @@ class Player:
         if not (0 <= x < 10 and 0 <= y < 10 and field_enemy.check_cell(x, y)):
             return False
         status = field_enemy.change_status(x, y)
-        self.field_enemy.field[x][y].status = status
+        self.field_of_enemy.field[x][y].status = status
         return True
 
     def is_winner(self):
-        return self.field_player.is_line()
+        return self.field_of_player.ships_are_alive()
 
     def show_field(self):
-        return self.field_player.show(), self.field_enemy.show()
+        return self.field_of_player.show(), self.field_of_enemy.show()
 
 class Computer(Player):
     def __init__(self, name):
         Player.__init__(self, name)
 
     def set_ships(self):
-        self.field_player.set_ships4computer()
+        self.field_of_player.set_ships4computer()
 
     def generation_step(self,):
-        return self.field_enemy.get_free_cell()
+        return self.field_of_enemy.get_free_cell()
 
 
 class Field:
@@ -100,11 +100,13 @@ class Field:
     def is_free_cell(self):
         for i in range(10):
             for j in range(10):
-                if (self.field[i][j].status == '_' or self.field[i][j].status == 'O'):
+                cell = self.field[i][j].status
+                if (cell == '_' or cell == 'O'):
                     return True
 
     def check_cell(self, x, y):
-        if (self.field[x][y].status == '_'or self.field[x][y].status == 'O'):
+        cell = self.field[x][y].status
+        if (cell == '_'or cell == 'O'):
             return True
         else:
             return False
@@ -112,9 +114,11 @@ class Field:
     def change_status(self, x, y):
         if self.check_cell(x, y):
             status = '+'
-            if self.field[x][y].status == 'O':
+            cell = self.field[x][y]
+            if cell.status == 'O':
                 status = 'X'
-            self.field[x][y].status = status
+                cell.ship.hit()
+            cell.status = status
             return status
 
     def show(self):
@@ -129,35 +133,37 @@ class Field:
     def get_free_cell(self):
         for i in range(10):
             for j in range(10):
-                if (self.field[i][j].status == '_' or self.field[i][j].status == 'O'):
+                cell = self.field[i][j].status
+                if (cell == '_' or cell == 'O'):
                     return i, j
 
     def set_ships4player(self):
-        self.set_ship_by_coords([[0, 0]])
-        self.set_ship_by_coords([[2, 2], [1, 2]])
+        self.set_ship_by_coords([[0, 0], [0, 1]])
+        #self.set_ship_by_coords([[2, 2], [3, 2]])
 
     def set_ships4computer(self):
         self.set_ship_by_coords([[5, 5], [5, 6], [5, 7]])
 
     def set_ship_by_coords(self, coords):
-        ship_cells = []
+        ship = Ship(len(coords))
         for coord in coords:
             cell = self.field[coord[0]][coord[1]]
             cell.status = 'O'
-            ship_cells.append(cell)
-        ship = Ship(ship_cells)
-        for cell in ship_cells:
             cell.set_ship(ship)
         self.ships.append(ship)
 
-    def is_line(self):
-        pass
+    def ships_are_alive(self):
+        res = 0
+        for ship in self.ships:
+            if ship.is_alive():
+                res += 1
+        if res == 0:
+            return True
 
 
 class Ship:
-    def __init__(self, cells):
-        self.cells = cells
-        self.alive = len(cells)
+    def __init__(self, alive):
+        self.alive = alive
 
     def hit(self):
         self.alive -= 1
