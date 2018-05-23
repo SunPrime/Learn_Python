@@ -17,20 +17,21 @@ class Game:
                 break
 
     def step_player(self, player, enemy):
-            if not player.is_free_cell():
-                self.user_interface.show_draw()
-                raise StopGame
-            success = False
-            while not success:
-                try:
-                    x, y = player.generation_step()
-                except NotImplementedError:
-                    x, y = self.user_interface.get_coords()
-                success = player.step(enemy.field_of_player, x, y)
-            self.user_interface.show_field(player.show_field())
-            if player.is_winner():
-                self.user_interface.show_winner(player.name)
-                raise StopGame
+        if not player.is_free_cell():
+            self.user_interface.show_draw()
+            raise StopGame
+        success = False
+        while not success:
+            try:
+                x, y = player.generation_step()
+            except NotImplementedError:
+                x, y = self.user_interface.get_coords()
+            success = player.step(enemy.field_of_player, x, y)
+        self.user_interface.show_field(player.show_field())
+        if enemy.is_winner():
+            self.user_interface.show_field(enemy.show_field())
+            self.user_interface.show_winner(player.name)
+            raise StopGame
 
 
 class User_interface:
@@ -139,7 +140,7 @@ class Field:
 
     def set_ships4player(self):
         self.set_ship_by_coords([[0, 0], [0, 1]])
-        #self.set_ship_by_coords([[2, 2], [3, 2]])
+        self.set_ship_by_coords([[2, 2], [3, 2]])
 
     def set_ships4computer(self):
         self.set_ship_by_coords([[5, 5], [5, 6], [5, 7]])
