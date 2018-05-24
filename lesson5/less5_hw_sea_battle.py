@@ -26,7 +26,9 @@ class Game:
                 x, y = player.generation_step()
             except NotImplementedError:
                 x, y = self.user_interface.get_coords()
-            success = player.step(enemy.field_of_player, x, y)
+            success, state = player.step(enemy.field_of_player, x, y)
+            if state:
+                self.user_interface.show_state(state)
         self.user_interface.show_field(player.show_field())
         if enemy.is_winner():
             self.user_interface.show_field(enemy.show_field())
@@ -39,12 +41,15 @@ class User_interface:
         print('draw')
 
     def get_coords(self):
-        return map(int, input('Ведите число: ').split(','))
+        return map(int, input('Input coordinates: ').split(' '))
 
     def show_field(self, fields):
         for i in range(10):
             print(fields[0][i] + '     ' + fields[1][i])
         print()
+
+    def show_state(self, state):
+        print(state)
 
     def show_winner(self, winner):
         print(winner + ' is winner')
@@ -67,13 +72,13 @@ class Player:
 
     def step(self, field_enemy, x, y):
         if not (0 <= x < 10 and 0 <= y < 10 and field_enemy.check_cell(x, y)):
-            return False
-        status = field_enemy.change_status(x, y)
+            return False, False
+        status, alive = field_enemy.change_state(x, y)
         self.field_of_enemy.field[x][y].status = status
-        return True
+        return True, alive
 
     def is_winner(self):
-        return self.field_of_player.ships_are_alive()
+        return self.field_of_player.are_ships_alive()
 
     def show_field(self):
         return self.field_of_player.show(), self.field_of_enemy.show()
@@ -112,15 +117,21 @@ class Field:
         else:
             return False
 
-    def change_status(self, x, y):
+    def change_state(self, x, y):
+        alive = 'Pass'
         if self.check_cell(x, y):
             status = '+'
             cell = self.field[x][y]
             if cell.status == 'O':
                 status = 'X'
                 cell.ship.hit()
+                alive = cell.ship.is_alive()
+                if alive:
+                    alive = 'Injured'
+                else:
+                    alive = 'Sunk'
             cell.status = status
-            return status
+            return status, alive
 
     def show(self):
         field = []
@@ -143,6 +154,8 @@ class Field:
         self.set_ship_by_coords([[2, 2], [3, 2]])
 
     def set_ships4computer(self):
+        self.set_ship_by_coords([[0, 0], [0, 1]])
+        self.set_ship_by_coords([[2, 1], [2, 2], [2, 3], [2, 4]])
         self.set_ship_by_coords([[5, 5], [5, 6], [5, 7]])
 
     def set_ship_by_coords(self, coords):
@@ -153,7 +166,7 @@ class Field:
             cell.set_ship(ship)
         self.ships.append(ship)
 
-    def ships_are_alive(self):
+    def are_ships_alive(self):
         res = 0
         for ship in self.ships:
             if ship.is_alive():
