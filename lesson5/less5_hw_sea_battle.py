@@ -75,6 +75,8 @@ class Player:
             return False, False
         status, alive = field_enemy.change_state(x, y)
         self.field_of_enemy.field[x][y].status = status
+        if alive == 'Sunk':
+            self.field_of_enemy.bypass(x, y)
         return True, alive
 
     def is_winner(self):
@@ -133,6 +135,40 @@ class Field:
             cell.status = status
             return status, alive
 
+    def bypass(self, i, j):
+        self.field[i][j].status = '#'
+        if 0 <= (j - 1):
+            self.cell_label(i, j - 1)
+
+        if 0 <= (i - 1) and 0 <= (j - 1):
+            self.cell_label(i - 1, j - 1)
+
+        if 0 <= (i - 1):
+            self.cell_label(i - 1, j)
+
+        if 0 <= (i - 1) and (j + 1) <= 9:
+            self.cell_label(i - 1, j + 1)
+
+        if (j + 1) <= 9:
+            self.cell_label(i, j + 1)
+
+        if (i + 1) <= 9 and (j + 1) <= 9:
+            self.cell_label(i + 1, j + 1)
+
+        if (i + 1) <= 9:
+            self.cell_label(i + 1, j)
+
+        if (i + 1) <= 9 and 0 <= (j - 1):
+            self.cell_label(i + 1, j - 1)
+
+    def cell_label(self, i, j):
+        cell = self.field[i][j]
+        if cell.status == '_':
+            cell.status = '+'
+        elif cell.status == 'X':
+            cell.status = '#'
+            self.bypass(i, j)
+
     def show(self):
         field = []
         for i in range(10):
@@ -151,12 +187,15 @@ class Field:
 
     def set_ships4player(self):
         self.set_ship_by_coords([[0, 0], [0, 1]])
-        self.set_ship_by_coords([[2, 2], [3, 2]])
+        self.set_ship_by_coords([[1, 3], [1, 4]])
+        self.set_ship_by_coords([[3, 2], [4, 2]])
 
     def set_ships4computer(self):
-        self.set_ship_by_coords([[0, 0], [0, 1]])
+        self.set_ship_by_coords([[0, 0], [0, 1], [0, 2]])
+        self.set_ship_by_coords([[1, 6], [1, 7]])
         self.set_ship_by_coords([[2, 1], [2, 2], [2, 3], [2, 4]])
         self.set_ship_by_coords([[5, 5], [5, 6], [5, 7]])
+        self.set_ship_by_coords([[7, 7]])
 
     def set_ship_by_coords(self, coords):
         ship = Ship(len(coords))
