@@ -58,5 +58,3 @@ class C(B):
 
     def method_h(self):
         pass
-
-
