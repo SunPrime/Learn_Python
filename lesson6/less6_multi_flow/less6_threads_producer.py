@@ -1,4 +1,4 @@
-import  threading
+import threading
 import queue
 
 class Producer(threading.Thread):
@@ -37,11 +37,11 @@ class Consumer(threading.Thread):
 
 queue = queue.Queue()
 mutex = threading.Condition()
-p1 = Producer(queue,mutex,'P1')
-p2 = Producer(queue,mutex,'P2')
-c1 = Consumer(queue,mutex, 'C1')
-c2 = Consumer(queue,mutex, 'C2')
-c3 = Consumer(queue,mutex, 'C3')
+p1 = Producer(queue, mutex, 'P1')
+p2 = Producer(queue, mutex, 'P2')
+c1 = Consumer(queue, mutex, 'C1')
+c2 = Consumer(queue, mutex, 'C2')
+c3 = Consumer(queue, mutex, 'C3')
 
 p1.start()
 p2.start()

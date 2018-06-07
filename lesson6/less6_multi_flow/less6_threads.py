@@ -12,7 +12,7 @@ class Sum(threading.Thread):
             self.result += i
 
 
-first = Sum(1,500000)
+first = Sum(1, 500000)
 second = Sum(500000, 10000001)
 first.start()
 second.start()
