@@ -34,7 +34,7 @@ class Violinist(threading.Thread):
             self.mutex_violin.wait()
         viol = self.queue_violin.get()
         print(self.name + ' take ' + viol)
-        self.mutex_violin.notify()
+        self.mutex_violin.notify_all()
         self.mutex_violin.release()
 
         self.mutex_bow.acquire()
@@ -42,7 +42,7 @@ class Violinist(threading.Thread):
             self.mutex_bow.wait()
         bow = self.queue_bow.get()
         print(self.name + ' take ' + bow)
-        self.mutex_bow.notify()
+        self.mutex_bow.notify_all()
         self.mutex_bow.release()
 
         return viol, bow
@@ -51,12 +51,12 @@ class Violinist(threading.Thread):
         self.mutex_violin.acquire()
         self.queue_violin.put(viol)
         print(self.name + ' put ' + viol)
-        self.mutex_violin.notify()
+        self.mutex_violin.notify_all()
         self.mutex_violin.release()
         self.mutex_bow.acquire()
         self.queue_bow.put(bow)
         print(self.name + ' put ' + bow)
-        self.mutex_bow.notify()
+        self.mutex_bow.notify_all()
         self.mutex_bow.release()
 
 maxconnections = 3
