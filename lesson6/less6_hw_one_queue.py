@@ -13,32 +13,33 @@ class Violinist(threading.Thread):
     def run(self):
         i = 0
         while i < 6:
-            self.get_instrument()
+            viol = self.get_instrument()
             time.sleep(random.randint(1, 5))
-            self.put_instrument()
+            self.put_instrument(viol)
             i += 1
 
     def get_instrument(self):
         self.mutex.acquire()
         while (self.queue.qsize() == 0):
             self.mutex.wait()
-        self.queue.get('violin')
+        viol = self.queue.get()
         self.mutex.notify()
         self.mutex.release()
-        print(self.name + ' take violin ')
+        print(self.name + ' take ' + viol)
+        return viol
 
-    def put_instrument(self):
+    def put_instrument(self, viol):
         self.mutex.acquire()
-        self.queue.put('violin')
+        self.queue.put(viol)
         self.mutex.notify()
         self.mutex.release()
-        print(self.name + ' put violin ')
+        print(self.name + ' put ' + viol)
 
 
 queue_violin = queue.Queue(3)
-queue_violin.put('violin')
-queue_violin.put('violin')
-queue_violin.put('violin')
+queue_violin.put('violin1')
+queue_violin.put('violin2')
+queue_violin.put('violin3')
 
 mutex = threading.Condition()
 
@@ -55,6 +56,3 @@ violinist3.start()
 violinist4.start()
 violinist5.start()
 violinist6.start()
-violinist4.join()
-violinist5.join()
-violinist6.join()
