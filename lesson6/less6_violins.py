@@ -4,8 +4,6 @@ import time
 import queue
 from threading import BoundedSemaphore
 
-import time
-import random
 
 class Violinist(threading.Thread):
     def __init__(self, semaphore, queue_violin, queue_bow, mutex_violin, mutex_bow, name):
@@ -29,63 +27,44 @@ class Violinist(threading.Thread):
             i += 1
 
     def get_instrument(self):
-        self.mutex_violin.acquire()
-        while (self.queue_violin.qsize() == 0):
-            self.mutex_violin.wait()
-        viol = self.queue_violin.get()
-        print(self.name + ' take ' + viol)
-        self.mutex_violin.notify_all()
-        self.mutex_violin.release()
-
-        self.mutex_bow.acquire()
-        while (self.queue_bow.qsize() == 0):
-            self.mutex_bow.wait()
-        bow = self.queue_bow.get()
-        print(self.name + ' take ' + bow)
-        self.mutex_bow.notify_all()
-        self.mutex_bow.release()
-
+        viol = self.get_instrument4thread(mutex_violin, queue_violin)
+        bow = self.get_instrument4thread(mutex_bow, queue_bow)
         return viol, bow
 
     def put_instrument(self, viol, bow):
-        self.mutex_violin.acquire()
-        self.queue_violin.put(viol)
-        print(self.name + ' put ' + viol)
-        self.mutex_violin.notify_all()
-        self.mutex_violin.release()
-        self.mutex_bow.acquire()
-        self.queue_bow.put(bow)
-        print(self.name + ' put ' + bow)
-        self.mutex_bow.notify_all()
-        self.mutex_bow.release()
+        self.put_instrument4thread(mutex_violin, queue_violin, viol)
+        self.put_instrument4thread(mutex_bow, queue_bow, bow)
+
+    def get_instrument4thread(self, mutex, queue):
+        mutex.acquire()
+        while (queue.qsize() == 0):
+            mutex.wait()
+        part_instrument = queue.get()
+        print(self.name + ' take ' + part_instrument)
+        mutex.notify_all()
+        mutex.release()
+        return part_instrument
+
+    def put_instrument4thread(self, mutex, queue, part_instrument):
+        mutex.acquire()
+        queue.put(part_instrument)
+        print(self.name + ' put ' + part_instrument)
+        mutex.notify_all()
+        mutex.release()
+
 
 maxconnections = 3
 pool_sema = BoundedSemaphore(value=maxconnections)
 
 mutex_violin = threading.Condition()
 queue_violin = queue.Queue(3)
-queue_violin.put('violin1')
-queue_violin.put('violin2')
-queue_violin.put('violin3')
-
 mutex_bow = threading.Condition()
 queue_bow = queue.Queue(3)
-queue_bow.put('bow1')
-queue_bow.put('bow2')
-queue_bow.put('bow3')
 
-mutex = threading.Condition()
+for item in range(1, 4):
+    queue_violin.put('violin' + str(item))
+    queue_bow.put('bow' + str(item))
 
-violinist1 = Violinist(pool_sema, queue_violin, queue_bow, mutex_violin, mutex_bow, 'Violinist1')
-violinist2 = Violinist(pool_sema, queue_violin, queue_bow, mutex_violin, mutex_bow, 'Violinist2')
-violinist3 = Violinist(pool_sema, queue_violin, queue_bow, mutex_violin, mutex_bow, 'Violinist3')
-violinist4 = Violinist(pool_sema, queue_violin, queue_bow, mutex_violin, mutex_bow, 'Violinist4')
-violinist5 = Violinist(pool_sema, queue_violin, queue_bow, mutex_violin, mutex_bow, 'Violinist5')
-violinist6 = Violinist(pool_sema, queue_violin, queue_bow, mutex_violin, mutex_bow, 'Violinist6')
-
-violinist1.start()
-violinist2.start()
-violinist3.start()
-violinist4.start()
-violinist5.start()
-violinist6.start()
+for item in range(1, 7):
+    violinist = Violinist(pool_sema, queue_violin, queue_bow, mutex_violin, mutex_bow, ('Violinist' + str(item)))
+    violinist.start()
