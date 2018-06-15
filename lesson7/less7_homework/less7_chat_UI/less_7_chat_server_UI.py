@@ -17,7 +17,6 @@ class ClientHandler(threading.Thread):
                 for key, value in self.clients.items():
                     if value == self.sock:
                         name = key
-                        break
                 res = 'client ' + name + ' remove'
                 print(res)
                 self.clients.pop(name)
