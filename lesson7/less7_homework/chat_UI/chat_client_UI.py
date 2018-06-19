@@ -17,7 +17,11 @@ class Client_Thread(threading.Thread):
 
         while True:
             message = sock.recv(1024).decode()
-            self.chat.centralWidget.get_message(message)
+            if not message:
+                self.chat.centralWidget.get_message('SERVER DISCONNECT')
+                break
+            else:
+                self.chat.centralWidget.get_message(message)
         sock.close()
 
 
