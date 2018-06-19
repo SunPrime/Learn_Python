@@ -11,13 +11,26 @@ class ClientHandler(threading.Thread):
 
     def run(self):
         while True:
-            message = self.sock.recv(1024).decode()
+            timeout = 30
+            self.sock.settimeout(timeout)
+            try:
+                message = self.sock.recv(1024).decode()
+            except socket.timeout:
+                print("Time is out, %d seconds have passed" % timeout)
+                for key, value in self.clients.items():
+                    if value == self.sock:
+                        name = key
+                res = 'user ' + name + ' not data'
+                print(res)
+                self.clients.pop(name)
+                self.sock.shutdown(1)
+                break
             msg_array = message.split(':')
             if message == 'quit_chat':
                 for key, value in self.clients.items():
                     if value == self.sock:
                         name = key
-                res = 'client ' + name + ' remove'
+                res = 'user ' + name + ' remove'
                 print(res)
                 self.clients.pop(name)
                 self.sock.shutdown(1)
@@ -39,14 +52,13 @@ class ClientHandler(threading.Thread):
                 output = name + ': ' + msg_array[1]
                 self.clients[msg_array[0]].send(output.encode())
             else:
-                output = "SERVER: input 'name:', 'user', 'list:' or 'broadcast'"
+                output = "SERVER: input 'name:', 'list:' or 'broadcast', please"
                 self.sock.send(output.encode())
         self.sock.close()
 
 
-
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.bind(('0.0.0.0', 7777)) #указываем что мы сетевое приложение и хотим адрес 5555
+sock.bind(('0.0.0.0', 7777)) #указываем что мы сетевое приложение и хотим адрес 7777
 sock.listen(5)
 clients = {}
 while True:
