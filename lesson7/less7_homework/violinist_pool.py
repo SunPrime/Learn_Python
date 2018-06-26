@@ -1,4 +1,4 @@
-import multiprocessing, time, random
+import multiprocessing, time
 from multiprocessing import current_process
 
 def play_violin(violin, bow):
