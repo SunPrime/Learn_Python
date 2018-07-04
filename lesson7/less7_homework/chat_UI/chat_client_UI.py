@@ -1,34 +1,43 @@
 import socket, select, threading, sys
+import time
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QDesktopWidget,
                              QTextEdit, QGridLayout, QPushButton, QWidget)
 
 
-sock = None
+
 class Client_Thread(threading.Thread):
-    def __init__(self, chat):
+    def __init__(self, sock, chat):
         threading.Thread.__init__(self)
+        self.sock = sock
         self.chat = chat
 
     def run(self):
-        global sock
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # идем к ОС и просим порт
-        sock.connect(('127.0.0.1', 7777))
-        select.select([sock], [sock], [])
-
         while True:
-            message = sock.recv(1024).decode()
+            message = self.sock.recv(1024).decode()
             if not message:
                 self.chat.centralWidget.get_message('SERVER DISCONNECT')
                 break
             else:
                 self.chat.centralWidget.get_message(message)
-        sock.close()
+        self.sock.close()
+
+class Ping_Thread(threading.Thread):
+    def __init__(self, sock):
+        threading.Thread.__init__(self)
+        self.sock = sock
+        self.daemon = True
+
+    def run(self):
+        while True:
+            time.sleep(25)
+            self.sock.send('ping'.encode())
 
 
 #chat
 class Chat(QMainWindow):
-    def __init__(self):
+    def __init__(self, sock):
         super().__init__()
+        self.sock = sock
         self.centralWidget=''
         self.initUI()
 
@@ -46,13 +55,14 @@ class Chat(QMainWindow):
         self.move(qr.topLeft())
 
     def populateUI(self):
-        self.centralWidget = CentralWidget()
+        self.centralWidget = CentralWidget(self.sock)
         self.setCentralWidget(self.centralWidget)
 
 
 class CentralWidget(QWidget):
-    def __init__(self):
+    def __init__(self, sock):
         super().__init__()
+        self.sock = sock
         self.initUI()
 
     def initUI(self):
@@ -82,21 +92,28 @@ class CentralWidget(QWidget):
         self.chat.clear()
         text_formatted = '{:>80}'.format(text)
         self.ribbon.append(text_formatted)
-        sock.send(text.encode())
+        self.sock.send(text.encode())
 
     def close(self):
         quit = 'quit_chat'
-        sock.send(quit.encode())
-        sock.close()
+        self.sock.send(quit.encode())
+        self.sock.close()
         self.QMainWindow.close()
 
 def main():
 
     app = QApplication(sys.argv)
-    chat = Chat()
 
-    client = Client_Thread(chat)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # идем к ОС и просим порт
+    sock.connect(('127.0.0.1', 7777))
+    select.select([sock], [sock], [])
+
+    chat = Chat(sock)
+    client = Client_Thread(sock, chat)
     client.start()
+
+    ping = Ping_Thread(sock)
+    ping.start()
 
     sys.exit(app.exec_())
 

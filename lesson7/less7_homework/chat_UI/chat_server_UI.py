@@ -35,6 +35,8 @@ class ClientHandler(threading.Thread):
                 self.clients.pop(name)
                 self.sock.shutdown(1)
                 break
+            elif msg_array[0] == 'ping':
+                print(str(self.clients.keys()) + ' ping')
             elif msg_array[0] == 'name':
                 self.clients[msg_array[1]] = self.sock
             elif msg_array[0] == 'list':
@@ -44,7 +46,10 @@ class ClientHandler(threading.Thread):
                 self.sock.send(output.encode())
             elif msg_array[0] == 'broadcast':
                 for value in self.clients.values():
-                    value.send(msg_array[1].encode())
+                    try:
+                        value.send(msg_array[1].encode())
+                    except ConnectionResetError:
+                        pass
             elif msg_array[0] in self.clients.keys():
                 for key, value in self.clients.items():
                     if value == self.sock:
